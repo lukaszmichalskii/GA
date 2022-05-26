@@ -15,19 +15,11 @@ class GraphInterface:
     def minimum_spanning_tree(self, algorithm: str):
         print('Minimum-spanning tree algorithm:')
         if algorithm == 'prim':
-            mst = prim_mst(self._graph, representation='adj_list')
-            print('Prim\'s algorithm results using adjacency list')
-            print('MST cost: {}, MST: {}'.format(mst.get('cost'), mst.get('mst')))
-            mst = prim_mst(self._graph, representation='inc_matrix')
-            print('Prim\'s algorithm results using incidence_matrix')
-            print('MST cost: {}, MST: {}'.format(mst.get('cost'), mst.get('mst')))
+            self._run_prim_mst(representation='adj_list')
+            self._run_prim_mst(representation='inc_matrix')
         elif algorithm == 'kruskal':
-            mst = kruskal_mst(self._graph, representation='adj_list')
-            print('Kruskal\'s algorithm results using adjacency list')
-            print('MST cost: {}, MST: {}'.format(mst.get('cost'), mst.get('mst')))
-            mst = kruskal_mst(self._graph, representation='inc_matrix')
-            print('Kruskal\'s algorithm results using incidence_matrix')
-            print('MST cost: {}, MST: {}'.format(mst.get('cost'), mst.get('mst')))
+            self._run_kruskal_mst(representation='adj_list')
+            self._run_kruskal_mst(representation='inc_matrix')
 
     def single_source_shortest_paths(self, start_vertex: str, algorithm: str):
         try:
@@ -39,27 +31,15 @@ class GraphInterface:
             if algorithm == 'dijkstra':
                 if self._digraph.has_negative_weights():
                     raise NegativeWeightedGraphException
-                shortest_paths = dijkstra(self._digraph, start_vertex, representation='adj_list')
-                print('Dijkstra\'s algorithm results using adjacency list')
-                for vertex in sorted(shortest_paths.keys(), key=lambda v: v):
-                    print('{} -> cost: {}, path: {}'.format(vertex, shortest_paths.get(vertex).get('cost'),
-                                                            shortest_paths.get(vertex).get('path')))
-                shortest_paths = dijkstra(self._digraph, start_vertex, representation='inc_matrix')
-                print('Dijkstra\'s algorithm results using incidence_matrix')
-                for vertex in sorted(shortest_paths.keys(), key=lambda v: v):
-                    print('{} -> cost: {}, path: {}'.format(vertex, shortest_paths.get(vertex).get('cost'),
-                                                            shortest_paths.get(vertex).get('path')))
+                self._run_dijkstra(start_vertex, representation='adj_list')
+                self._run_dijkstra(start_vertex, representation='inc_matrix')
             elif algorithm == 'bellman-ford':
-                shortest_paths = bellman_ford(self._digraph, start_vertex, representation='adj_list')
-                print('Bellman-Ford\'s algorithm results using adjacency list')
-                for vertex in sorted(shortest_paths.keys(), key=lambda v: v):
-                    print('{} -> cost: {}, path: {}'.format(vertex, shortest_paths.get(vertex).get('cost'),
-                                                            shortest_paths.get(vertex).get('path')))
-                shortest_paths = bellman_ford(self._digraph, start_vertex, representation='inc_matrix')
-                print('Bellman-Ford\'s algorithm results using incidence_matrix')
-                for vertex in sorted(shortest_paths.keys(), key=lambda v: v):
-                    print('{} -> cost: {}, path: {}'.format(vertex, shortest_paths.get(vertex).get('cost'),
-                                                            shortest_paths.get(vertex).get('path')))
+                if self._digraph.has_negative_weights():
+                    print('[WARNING]: algorithm run using adjacency list')
+                    self._run_bellman_ford(start_vertex, representation='adj_list')
+                    return
+                self._run_bellman_ford(start_vertex, representation='adj_list')
+                self._run_bellman_ford(start_vertex, representation='inc_matrix')
         except NegativeWeightedGraphException:
             print('Graph contains negative weights, dijkstra algorithm is not applicable for such graphs')
         except DeadEndException:
@@ -70,19 +50,43 @@ class GraphInterface:
             print('[ERROR]: {}'.format(e))
 
     def print(self):
-        print('========== Directed graph ==========')
+        print('========== DIRECTED GRAPH ==========')
         print('Adjacency list representation:')
         for vertex in sorted(self._digraph.adj_list.vertices, key=lambda v: v):
             print(self._digraph.adj_list.get_incident_vertices(vertex))
         print('Incidence matrix representation:')
         self._digraph.inc_matrix.print()
         print()
-        print('========== Undirected graph ==========')
+        print('========== UNDIRECTED GRAPH ==========')
         print('Adjacency list representation:')
         for vertex in sorted(self._graph.adj_list.vertices, key=lambda v: v):
             print(self._graph.adj_list.get_incident_vertices(vertex))
         print('Incidence matrix representation:')
         self._graph.inc_matrix.print()
+
+    def _run_prim_mst(self, representation: str):
+        mst = prim_mst(self._graph, representation=representation)
+        print(f'Prim\'s algorithm results using {representation}')
+        print('MST cost: {}, MST: {}'.format(mst.get('cost'), mst.get('mst')))
+
+    def _run_kruskal_mst(self, representation: str):
+        mst = kruskal_mst(self._graph, representation=representation)
+        print(f'Kruskal\'s algorithm results using {representation}')
+        print('MST cost: {}, MST: {}'.format(mst.get('cost'), mst.get('mst')))
+
+    def _run_bellman_ford(self, start_vertex: str, representation: str):
+        shortest_paths = bellman_ford(self._digraph, start_vertex, representation=representation)
+        print(f'Bellman-Ford\'s algorithm results using {representation}')
+        for vertex in sorted(shortest_paths.keys(), key=lambda v: v):
+            print('{} -> cost: {}, path: {}'.format(vertex, shortest_paths.get(vertex).get('cost'),
+                                                    shortest_paths.get(vertex).get('path')))
+
+    def _run_dijkstra(self, start_vertex: str, representation: str):
+        shortest_paths = dijkstra(self._digraph, start_vertex, representation=representation)
+        print(f'Dijkstra\'s algorithm results using {representation}')
+        for vertex in sorted(shortest_paths.keys(), key=lambda v: v):
+            print('{} -> cost: {}, path: {}'.format(vertex, shortest_paths.get(vertex).get('cost'),
+                                                    shortest_paths.get(vertex).get('path')))
 
     @property
     def digraph(self):

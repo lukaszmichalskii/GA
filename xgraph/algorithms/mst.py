@@ -6,19 +6,21 @@ from xgraph.graph import Graph
 
 
 def prim_mst(graph: Graph, representation: str) -> Dict[str, Union[List[Tuple[str, int]], int]]:
-    mst, visited, edges, cost = list(), list(), HeapAdjVertices(), 0
+    mst, visited, edges, cost = list(), list(), HeapEdges(), 0
     vertex = graph.vertices[0]
     visited.append(vertex)
     while len(mst) < len(graph.vertices) - 1:
         if representation == 'adj_list':
-            adj_vertices = [adj_vertex for adj_vertex in graph.adj_list.get_incident_vertices(vertex) if adj_vertex[0] not in visited]
+            adj_vertices = [Edge((vertex, adj_vertex[0], adj_vertex[1])) for adj_vertex in graph.adj_list.get_incident_vertices(vertex) if adj_vertex[0] not in visited]
         else:
-            adj_vertices = [adj_vertex for adj_vertex in graph.inc_matrix.get_incident_vertices(vertex) if adj_vertex[0] not in visited]
+            adj_vertices = [Edge((vertex, adj_vertex[0], adj_vertex[1])) for adj_vertex in graph.inc_matrix.get_incident_vertices(vertex) if adj_vertex[0] not in visited]
         edges.add_all(adj_vertices)
         edge = edges.remove()
-        visited.append(edge[0])
-        cost += edge[1]
-        mst.append((vertex, edge[0]))
+        while edge.source in visited and edge.dest in visited:
+            edge = edges.remove()
+        visited.append(edge.dest)
+        cost += edge.weight
+        mst.append((edge.source, edge.dest))
         vertex = visited[-1]
 
     return {'mst': mst, 'cost': cost}
