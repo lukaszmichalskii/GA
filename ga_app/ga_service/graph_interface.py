@@ -1,5 +1,6 @@
 from typing import List, Tuple
 
+from xgraph import digraph
 from xgraph.algorithms.mst import prim_mst, kruskal_mst
 from xgraph.algorithms.shortest_paths import dijkstra, bellman_ford
 from xgraph.digraph import DiGraph
@@ -71,7 +72,7 @@ class GraphInterface:
     def print(self):
         print('========== Directed graph ==========')
         print('Adjacency list representation:')
-        for vertex in sorted(self._graph.adj_list.vertices, key=lambda v: v):
+        for vertex in sorted(self._digraph.adj_list.vertices, key=lambda v: v):
             print(self._digraph.adj_list.get_incident_vertices(vertex))
         print('Incidence matrix representation:')
         self._digraph.inc_matrix.print()
@@ -82,6 +83,22 @@ class GraphInterface:
             print(self._graph.adj_list.get_incident_vertices(vertex))
         print('Incidence matrix representation:')
         self._graph.inc_matrix.print()
+
+    @property
+    def digraph(self):
+        return self._digraph
+
+    @digraph.setter
+    def digraph(self, digraph: DiGraph):
+        self._digraph = digraph
+
+    @property
+    def graph(self):
+        return self._graph
+
+    @graph.setter
+    def graph(self, graph: Graph):
+        self._graph = graph
 
 
 class VertexDoesNotExist(Exception):
