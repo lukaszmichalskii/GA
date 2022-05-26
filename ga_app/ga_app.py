@@ -26,13 +26,20 @@ class GAApp:
     def _handle_user_cmd(self, cmd: str) -> None:
         if cmd == 'exit' or cmd == 'quit':
             self._app_flag = False
-            return
+        elif cmd == 'pmst' or cmd == 'prim_mst':
+            self._graph_interface.minimum_spanning_tree(algorithm='prim')
+        elif cmd == 'kmst' or cmd == 'kruskal_mst':
+            self._graph_interface.minimum_spanning_tree(algorithm='kruskal')
+        elif cmd == 'dsp' or cmd == 'dijkstra':
+            start = input('start vertex = ')
+            self._graph_interface.single_source_shortest_paths(start, algorithm='dijkstra')
+        elif cmd == 'bfsp' or cmd == 'bellman-ford':
+            start = input('start vertex = ')
+            self._graph_interface.single_source_shortest_paths(start, algorithm='bellman-ford')
         elif cmd == 'print' or cmd == 'p':
             self._graph_interface.print()
-            return
         elif cmd == 'help':
             print(self._help_msg)
-            return
         else:
             print(f'warning: "{cmd}" command not found, "help" for command list')
 

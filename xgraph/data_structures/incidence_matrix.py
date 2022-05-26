@@ -52,6 +52,10 @@ class IncidenceMatrix:
     def vertices(self) -> List[str]:
         return self._vertices
 
+    def print(self):
+        for v in range(len(self._inc_matrix)):
+            print(self._inc_matrix[v])
+
 
 def inc_matrix_from_edges(edges: List[Tuple[str, str, int]], vertices_num, directed: bool) -> List[List[int]]:
     inc_matrix = _create_empty_inc_matrix(vertices_num, len(edges))

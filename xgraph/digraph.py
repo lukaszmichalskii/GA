@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 from xgraph.data_structures.adjacency_list import AdjacencyList
 from xgraph.data_structures.incidence_matrix import IncidenceMatrix
+from xgraph.graph_utils import edges_collection
 
 
 class DiGraph:
@@ -9,6 +10,7 @@ class DiGraph:
         self._directed = True
         self._adj_list = AdjacencyList(edges, vertices_num, self._directed)
         self._inc_matrix = IncidenceMatrix(edges, vertices_num, self._directed)
+        self._edges = edges_collection(edges)
 
     @property
     def adj_list(self) -> AdjacencyList:
@@ -25,3 +27,9 @@ class DiGraph:
     @property
     def is_directed(self):
         return self._directed
+
+    def has_negative_weights(self) -> bool:
+        for edge in self._edges:
+            if edge.weight < 0:
+                return True
+        return False
