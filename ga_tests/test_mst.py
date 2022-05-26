@@ -26,8 +26,20 @@ class TestMST(unittest.TestCase):
             ('1', '5', 3),
             ('3', '4', 2),
         ]
+
+        edges3 = [
+            ('0', '3', 9),
+            ('0', '4', 4),
+            ('0', '6', 3),
+            ('1', '3', 4),
+            ('1', '4', 2),
+            ('2', '4', 3),
+            ('3', '4', 8),
+            ('5', '6', 1)
+        ]
         self.dummy_graph = Graph(vertices_num=7, edges=edges)
         self.dummy_graph2 = Graph(vertices_num=6, edges=edges2)
+        self.dummy_graph3 = Graph(vertices_num=7, edges=edges3)
         self.filepath = r'../ga_tests/resources/graph.txt'
         self.edges, vert_num, _ = read_file(self.filepath)
         self.graph = Graph(vertices_num=vert_num, edges=self.edges)
@@ -56,6 +68,11 @@ class TestMST(unittest.TestCase):
         mst = prim_mst(self.graph2, representation='inc_matrix')
         self.assertEqual(20, mst.get('cost'))
 
+        mst = prim_mst(self.dummy_graph3, representation='adj_list')
+        self.assertEqual(17, mst.get('cost'))
+        mst = prim_mst(self.dummy_graph3, representation='inc_matrix')
+        self.assertEqual(17, mst.get('cost'))
+
     def test_kruskal_mst(self):
         mst = kruskal_mst(self.dummy_graph, representation='adj_list')
         self.assertEqual(99, mst.get('cost'))
@@ -71,3 +88,8 @@ class TestMST(unittest.TestCase):
         self.assertEqual(24, mst.get('cost'))
         mst = kruskal_mst(self.dummy_graph2, representation='inc_matrix')
         self.assertEqual(24, mst.get('cost'))
+
+        mst = kruskal_mst(self.dummy_graph3, representation='adj_list')
+        self.assertEqual(17, mst.get('cost'))
+        mst = kruskal_mst(self.dummy_graph3, representation='inc_matrix')
+        self.assertEqual(17, mst.get('cost'))
