@@ -81,5 +81,40 @@ def _edges_collection(edges: List[Tuple[str, str, int]]) -> List[Edge]:
     return [Edge(edge) for edge in edges]
 
 
+def edges_collection_from_adj_list(adj_list: Dict[str, List[Tuple[str, int]]]) -> List[Edge]:
+    edges = list()
+    for vertex in adj_list.keys():
+        for adj_vertex in adj_list[vertex]:
+            edges.append((vertex, adj_vertex[0], adj_vertex[1]))
+
+    return [Edge(e) for e in edges]
+
+
+def edges_collection_from_inc_matrix(inc_matrix: List[List[int]], directed: bool) -> List[Edge]:
+    edges = list()
+    if directed:
+        for v_num in range(len(inc_matrix)):
+            for e_num in range(len(inc_matrix[v_num])):
+                if inc_matrix[v_num][e_num] != 0:
+                    for i in range(len(inc_matrix)):
+                        if i == v_num:
+                            continue
+                        if inc_matrix[v_num][e_num] == -inc_matrix[i][e_num] and inc_matrix[v_num][e_num] > 0:
+                            edges.append((str(v_num), str(i), inc_matrix[v_num][e_num]))
+
+        return [Edge(e) for e in edges]
+
+    for v_num in range(len(inc_matrix)):
+        for e_num in range(len(inc_matrix[v_num])):
+            if inc_matrix[v_num][e_num] != 0:
+                for i in range(len(inc_matrix)):
+                    if i == v_num:
+                        continue
+                    if inc_matrix[v_num][e_num] == inc_matrix[i][e_num] and v_num < i:
+                        edges.append((str(v_num), str(i), inc_matrix[v_num][e_num]))
+
+    return [Edge(e) for e in edges]
+
+
 class EdgeOverrideException(Exception):
     pass

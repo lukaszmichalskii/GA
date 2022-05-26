@@ -16,3 +16,16 @@ class DiGraph:
     @property
     def inc_matrix(self):
         return self._inc_matrix
+
+    @property
+    def vertices(self):
+        return list(self._adj_list.keys())
+
+    def get_incident_vertices_to_vertex_from_inc_matrix(self, vertex: str) -> List[Tuple[str, int]]:
+        incident_vertices = list()
+        for e_num in range(len(self._inc_matrix[int(vertex)])):
+            if self._inc_matrix[int(vertex)][e_num] != 0:
+                for v_num in range(len(self._inc_matrix)):
+                    if self._inc_matrix[int(vertex)][e_num] == -self._inc_matrix[v_num][e_num] and self._inc_matrix[int(vertex)][e_num] > 0:
+                        incident_vertices.append((str(v_num), self._inc_matrix[int(vertex)][e_num]))
+            return incident_vertices
