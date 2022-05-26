@@ -1,31 +1,27 @@
 from typing import List, Tuple
 
-from xgraph.graph_utils import adj_list_from_edges, inc_matrix_from_edges
+from xgraph.data_structures.adjacency_list import AdjacencyList
+from xgraph.data_structures.incidence_matrix import IncidenceMatrix
 
 
 class DiGraph:
     def __init__(self, vertices_num: int, edges: List[Tuple[str, str, int]]):
         self._directed = True
-        self._adj_list = adj_list_from_edges(edges, self._directed)
-        self._inc_matrix = inc_matrix_from_edges(edges, vertices_num, self._directed)
+        self._adj_list = AdjacencyList(edges, vertices_num, self._directed)
+        self._inc_matrix = IncidenceMatrix(edges, vertices_num, self._directed)
 
     @property
-    def adj_list(self):
+    def adj_list(self) -> AdjacencyList:
         return self._adj_list
 
     @property
-    def inc_matrix(self):
+    def inc_matrix(self) -> IncidenceMatrix:
         return self._inc_matrix
 
     @property
-    def vertices(self):
-        return list(self._adj_list.keys())
+    def vertices(self) -> List[str]:
+        return self.inc_matrix.vertices
 
-    def get_incident_vertices_to_vertex_from_inc_matrix(self, vertex: str) -> List[Tuple[str, int]]:
-        incident_vertices = list()
-        for e_num in range(len(self._inc_matrix[int(vertex)])):
-            if self._inc_matrix[int(vertex)][e_num] != 0:
-                for v_num in range(len(self._inc_matrix)):
-                    if self._inc_matrix[int(vertex)][e_num] == -self._inc_matrix[v_num][e_num] and self._inc_matrix[int(vertex)][e_num] > 0:
-                        incident_vertices.append((str(v_num), self._inc_matrix[int(vertex)][e_num]))
-            return incident_vertices
+    @property
+    def is_directed(self):
+        return self._directed

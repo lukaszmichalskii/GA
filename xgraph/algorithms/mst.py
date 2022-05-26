@@ -3,7 +3,6 @@ from typing import Dict, Union, List, Tuple
 from xgraph.data_structures.edge import Edge
 from xgraph.data_structures.heap import HeapAdjVertices, HeapEdges
 from xgraph.graph import Graph
-from xgraph.graph_utils import edges_collection_from_inc_matrix, edges_collection_from_adj_list
 
 
 def prim_mst(graph: Graph, representation: str) -> Dict[str, Union[List[Tuple[str, int]], int]]:
@@ -12,10 +11,9 @@ def prim_mst(graph: Graph, representation: str) -> Dict[str, Union[List[Tuple[st
     visited.append(vertex)
     while len(mst) < len(graph.vertices) - 1:
         if representation == 'adj_list':
-            adj_vertices = [adj_vertex for adj_vertex in graph.adj_list[vertex] if adj_vertex[0] not in visited]
+            adj_vertices = [adj_vertex for adj_vertex in graph.adj_list.get_incident_vertices(vertex) if adj_vertex[0] not in visited]
         else:
-            adj_vertices = [adj_vertex for adj_vertex in graph.get_incident_vertices_to_vertex_from_inc_matrix(vertex)
-                            if adj_vertex[0] not in visited]
+            adj_vertices = [adj_vertex for adj_vertex in graph.inc_matrix.get_incident_vertices(vertex) if adj_vertex[0] not in visited]
         edges.add_all(adj_vertices)
         edge = edges.remove()
         visited.append(edge[0])
@@ -30,9 +28,9 @@ def kruskal_mst(graph: Graph, representation: str) -> Dict[str, Union[List[Tuple
     vertices_colors = [i for i in range(len(graph.vertices))]
     mst, visited, cost, edges = list(), list(), 0, HeapEdges()
     if representation == 'adj_list':
-        edges.add_all(edges_collection_from_adj_list(graph.adj_list))
+        edges.add_all(graph.adj_list.get_edges_collection())
     else:
-        edges.add_all(edges_collection_from_inc_matrix(graph.inc_matrix, graph.is_directed))
+        edges.add_all(graph.inc_matrix.get_edges_collection())
     while len(mst) < len(graph.vertices) - 1:
         edge: Edge = edges.remove()
         if edge.source not in visited and edge.dest not in visited:
