@@ -1,7 +1,7 @@
 import unittest
 
 from ga_app.ga_service.read_file import read_file
-from xgraph.algorithms.shortest_paths import dijkstra, bellman_ford
+from xgraph.algorithms.shortest_paths import dijkstra, bellman_ford, NegativeCycleException
 from xgraph.digraph import DiGraph
 
 
@@ -33,6 +33,9 @@ class TestShortestPaths(unittest.TestCase):
             '6': {'cost': 9, 'path': '3'},
         }
 
+        neg_cycle_graph, V, _ = read_file(r'../ga_tests/resources/neg_cycle_digraph.txt')
+        self.neg_cycle_digraph = DiGraph(vert_num, neg_cycle_graph)
+
     def test_dijkstra(self):
         sp = dijkstra(self.graph, start='0', representation='adj_list')
         self.assertEqual(self.expected, sp)
@@ -56,3 +59,6 @@ class TestShortestPaths(unittest.TestCase):
         self.assertEqual(self.expected, sp)
         sp = bellman_ford(self.graph, start='0', representation='inc_matrix')
         self.assertEqual(self.expected, sp)
+
+    def test_bellman_ford_detect_negative_cycle(self):
+        self.assertRaises(NegativeCycleException, bellman_ford, graph=self.neg_cycle_digraph, start='0', representation='adj_list')

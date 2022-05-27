@@ -1,5 +1,6 @@
 from typing import Dict, Union, List
 
+from xgraph.data_structures.edge import Edge
 from xgraph.data_structures.heap import HeapAdjVertices
 from xgraph.digraph import DiGraph
 
@@ -51,6 +52,19 @@ def bellman_ford(graph: DiGraph, start: str, representation: str) -> Dict[str, D
                 relaxation += 1
         iteration += 1
         if relaxation == 0:
-            break
+            return shortest_paths
+
+    for edge in edges:
+        if _negative_cycle(shortest_paths, edge):
+            raise NegativeCycleException
 
     return shortest_paths
+
+
+def _negative_cycle(shortest_paths: Dict[str, Dict[str, Union[int, float, str]]], edge: Edge) -> bool:
+    return shortest_paths[edge.source]['cost'] != float('inf') and\
+           shortest_paths[edge.source]['cost'] + edge.weight < shortest_paths[edge.dest]['cost']
+
+
+class NegativeCycleException(Exception):
+    pass
