@@ -1,8 +1,8 @@
 from typing import List, Tuple
 
-from xgraph import digraph
+from xgraph.algorithms.dfs import depth_first_search
 from xgraph.algorithms.mst import prim_mst, kruskal_mst
-from xgraph.algorithms.shortest_paths import dijkstra, bellman_ford
+from xgraph.algorithms.shortest_paths import dijkstra, bellman_ford, NegativeCycleException
 from xgraph.digraph import DiGraph
 from xgraph.graph import Graph
 
@@ -13,13 +13,19 @@ class GraphInterface:
         self._digraph = DiGraph(vertices_num, edges_list)
 
     def minimum_spanning_tree(self, algorithm: str):
-        print('Minimum-spanning tree algorithm:')
-        if algorithm == 'prim':
-            self._run_prim_mst(representation='adj_list')
-            self._run_prim_mst(representation='inc_matrix')
-        elif algorithm == 'kruskal':
-            self._run_kruskal_mst(representation='adj_list')
-            self._run_kruskal_mst(representation='inc_matrix')
+        try:
+            if not self._graph_connected(self._graph):
+                raise GraphIsNotConnected
+            print('Minimum-spanning tree algorithm:')
+            if algorithm == 'prim':
+                self._run_prim_mst(representation='adj_list')
+                self._run_prim_mst(representation='inc_matrix')
+            elif algorithm == 'kruskal':
+                self._run_kruskal_mst(representation='adj_list')
+                self._run_kruskal_mst(representation='inc_matrix')
+        except GraphIsNotConnected:
+            print("Graph does not have connectivity properties, cannot find MST (G = G' + G'', where G' != G'' and ("
+                  "G' and  G'' E G )")
 
     def single_source_shortest_paths(self, start_vertex: str, algorithm: str):
         try:
@@ -40,6 +46,8 @@ class GraphInterface:
                     return
                 self._run_bellman_ford(start_vertex, representation='adj_list')
                 self._run_bellman_ford(start_vertex, representation='inc_matrix')
+        except NegativeCycleException:
+            print('Detected negative cycle in digraph')
         except NegativeWeightedGraphException:
             print('Graph contains negative weights, dijkstra algorithm is not applicable for such graphs')
         except DeadEndException:
@@ -88,6 +96,9 @@ class GraphInterface:
             print('{} -> cost: {}, path: {}'.format(vertex, shortest_paths.get(vertex).get('cost'),
                                                     shortest_paths.get(vertex).get('path')))
 
+    def _graph_connected(self, graph: Graph) -> bool:
+        return len(self._graph.vertices) == len(depth_first_search(graph, '0'))
+
     @property
     def digraph(self):
         return self._digraph
@@ -114,4 +125,8 @@ class DeadEndException(Exception):
 
 
 class NegativeWeightedGraphException(Exception):
+    pass
+
+
+class GraphIsNotConnected(Exception):
     pass

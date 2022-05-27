@@ -24,3 +24,11 @@ class GraphGenerator:
                       random.randrange(self._gg_settings.weights_interval[0], self._gg_settings.weights_interval[1])))
         E.sort(key=lambda edge: edge[0])
         return E
+
+    @staticmethod
+    def generate_graph_from_edges(V: int, edges: List[Tuple[str, str, int]]) -> Graph:
+        return Graph(V, edges)
+
+    @staticmethod
+    def generate_digraph_from_edges(V: int, edges: List[Tuple[str, str, int]]) -> DiGraph:
+        return DiGraph(V, edges)

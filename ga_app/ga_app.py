@@ -12,7 +12,6 @@ class GAApp:
         self._graph_interface = None
         self._graph_generator = GraphGenerator()
         self._app_flag = True
-        self._help_msg = f"Available commands:\n{self._options.MST}\n{self._options.SPA}\n{self._options.RGEN}\n{self._options.WAR}"
 
     def run(self):
         edges, vertices_num = self._load_edges()
@@ -39,25 +38,13 @@ class GAApp:
             start = input('start vertex = ')
             self._graph_interface.single_source_shortest_paths(start, algorithm='bellman-ford')
         elif cmd == 'rgen':
-            v_num = input('V = ')
-            try:
-                v_num = int(v_num)
-                directed = input('directed [y/n]? ')
-                if directed == 'y' or directed == 'yes':
-                    G = self._graph_generator.generate_graph(v_num, True)
-                    self._graph_interface.digraph = G
-                    self._graph_interface.print()
-                else:
-                    G = self._graph_generator.generate_graph(v_num, False)
-                    self._graph_interface.graph = G
-                    self._graph_interface.print()
-            except TypeError or ValueError as e:
-                print('[ERROR] invalid input, details: {}'.format(e))
-
+            self._handle_generation_process()
+        elif cmd == 'load' or cmd == 'reload':
+            self._handle_reload_process()
         elif cmd == 'print' or cmd == 'p':
             self._graph_interface.print()
         elif cmd == 'help':
-            print(self._help_msg)
+            print(self._options.help_msg())
         else:
             print(f'warning: "{cmd}" command not found, "help" for command list')
 
@@ -68,12 +55,54 @@ class GAApp:
         except Exception:
             raise InitializationFailed
 
+    def _handle_generation_process(self):
+        v_num = input('V = ')
+        try:
+            v_num = int(v_num)
+            directed = input('directed [y/n]? ')
+            if directed == 'y' or directed == 'yes':
+                G = self._graph_generator.generate_graph(v_num, True)
+                self._graph_interface.digraph = G
+                self._graph_interface.print()
+            else:
+                G = self._graph_generator.generate_graph(v_num, False)
+                self._graph_interface.graph = G
+                self._graph_interface.print()
+        except TypeError or ValueError as e:
+            print('[ERROR] invalid input, details: {}'.format(e))
+
+    def _handle_reload_process(self):
+        is_new = input('reload graph from filepath: {} [y/n]?'.format(self._filepath))
+        if is_new == 'y' or is_new == 'yes':
+            edges, V = self._load_edges()
+            self._graph_interface.graph = GraphGenerator.generate_graph_from_edges(V, edges)
+            self._graph_interface.digraph = GraphGenerator.generate_digraph_from_edges(V, edges)
+            return
+        filepath = input('filepath = ')
+        try:
+            edges, V, _ = read_file(filepath)
+            self._graph_interface.graph = GraphGenerator.generate_graph_from_edges(V, edges)
+            self._graph_interface.digraph = GraphGenerator.generate_digraph_from_edges(V, edges)
+            return
+        except Exception as e:
+            print('[ERROR] failed to load graph, details: {}'.format(e))
+
 
 class UserOptions:
-    MST = '[pmst, prim_mst, kmst, kruskal_mst] - find minimum-spanning-tree of graph'
-    SPA = '[dsp, dijkstra_sp, bfsp, bellman-ford_sp: <-S start vertex>] - find single source shortest paths'
-    RGEN = '[rgen: <-V vertices>] - generate new random graph with V nodes and replace current'
-    WAR = '[IMPORTANT]: all commands are sensitive case which means "RGEN" or "rGen" command will not work'
+    def __init__(self):
+        self.MST = '[pmst, prim_mst, kmst, kruskal_mst] - find minimum-spanning-tree of graph'
+        self.SPA = '[dsp, dijkstra_sp, bfsp, bellman-ford_sp: <-S start vertex>] - find single source shortest paths'
+        self.RGEN = '[rgen: <-V vertices>] - generate new random graph with V nodes and replace current'
+        self.LOAD = '[load, reload: [-F filepath] - reload graph from predefined filepath or load from different file'
+        self.WAR = '[IMPORTANT]: all commands are sensitive case which means "RGEN" or "rGen" command will not work'
+
+    def help_msg(self) -> str:
+        return f"Available commands:\n" \
+               f"{self.MST}\n" \
+               f"{self.SPA}\n" \
+               f"{self.RGEN}\n" \
+               f"{self.LOAD}\n" \
+               f"{self.WAR}"
 
 
 class InitializationFailed(Exception):
